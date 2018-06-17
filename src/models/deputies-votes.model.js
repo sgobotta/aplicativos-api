@@ -8,7 +8,7 @@ module.exports = function (app) {
 
     name: { type: String, required: true },
     province: { type: String, required: true },
-    percentage: { type: String, required: true }
+    percentage: { type: Number, required: true }
 
   }, {
     timestamps: true
