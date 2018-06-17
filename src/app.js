@@ -16,6 +16,8 @@ const services = require('./services');
 const appHooks = require('./app.hooks');
 const channels = require('./channels');
 
+const eventHooks = require('./app.event.hooks');
+
 const authentication = require('./authentication');
 
 const mongoose = require('./mongoose');
@@ -53,5 +55,7 @@ app.use(express.notFound());
 app.use(express.errorHandler({ logger }));
 
 app.hooks(appHooks);
+
+eventHooks(app);
 
 module.exports = app;
