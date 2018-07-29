@@ -16,9 +16,7 @@ module.exports = {
   },
 
   after: {
-    all: [ 
-      // Make sure the password field is never sent to the client
-      // Always must be the last hook
+    all: [
       protect('password')
     ],
     find: [],
