@@ -21,6 +21,18 @@ module.exports = function (app) {
       remove: [
         authentication.hooks.authenticate('jwt')
       ]
+    },
+    after: {
+      create: [
+        hook => {
+          hook.result.user = {
+            id: hook.params.user._id,
+            email: hook.params.user.email
+          };
+          console.log(hook.result);
+          return hook;
+        }
+      ]
     }
   });
 };
