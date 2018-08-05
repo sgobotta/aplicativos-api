@@ -29,7 +29,6 @@ module.exports = function (app) {
             id: hook.params.user._id,
             email: hook.params.user.email
           };
-          console.log(hook.result);
           return hook;
         }
       ]
