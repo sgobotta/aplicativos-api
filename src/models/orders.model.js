@@ -7,15 +7,32 @@ module.exports = function (app) {
   const { Schema } = mongooseClient;
 
   const OrderParticipant = new mongooseClient.Schema({
-    participantId: { type: Schema.ObjectId, ref: 'participantId', required: true},
+    participantId: { type: Schema.Types.ObjectId, ref: 'participantId', required: true},
     selection: { type: [String]}
   });
 
   const orders = new mongooseClient.Schema({
-    title: { type: String, required: true },
-    author: { type: Schema.ObjectId, ref: 'author', required: true },
-    participants: { type: [OrderParticipant] },
-    isActive: { type: Boolean, default: true }
+    title: {
+      type: String,
+      required: true
+    },
+    author: {
+      type: Schema.Types.ObjectId,
+      ref: 'users',
+      required: true,
+    },
+    participants: {
+      type: [OrderParticipant]
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    expiresAt: {
+      type: Date,
+      requied: true,
+      default: Date.now()
+    }
   }, {
     timestamps: true
   });
