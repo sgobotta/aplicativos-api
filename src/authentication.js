@@ -27,7 +27,9 @@ module.exports = function (app) {
         hook => {
           hook.result.user = {
             id: hook.params.user._id,
-            email: hook.params.user.email
+            email: hook.params.user.email,
+            username: hook.params.user.username,
+            accessToken: hook.params.accessToken
           };
           return hook;
         }
