@@ -8,8 +8,8 @@ module.exports = function (app) {
 
     name: { type: String, required: true },
     province: { type: String, required: true },
-    percentage: { type: Number, required: true }
-
+    percentage: { type: Number, required: true },
+    voteType: { type: String, required: true }
   }, {
     timestamps: true
   });
