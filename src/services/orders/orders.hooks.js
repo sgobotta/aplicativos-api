@@ -30,7 +30,7 @@ function filterData(context) {
       title: order.title,
       creationDate: order.createdAt,
       author: {
-        _id: order.author._id,
+        id: order.author._id,
         username: order.author.username
       }
     };
