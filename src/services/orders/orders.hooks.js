@@ -11,10 +11,13 @@ const skipFeathersInternalCall = (context) => {
   }
 };
 
+function sortByCreationDate(context) {
+  context.params.query.$sort = { createdAt: -1 };
+  return context;
+}
+
 function projectAuthors(context) {
-  context.params.query = {
-    $populate: 'author'
-  };
+  context.params.query.$populate = 'author';
   return context;
 }
 
@@ -22,8 +25,10 @@ function filterData(context) {
   skipFeathersInternalCall(context);
   const orders = context.result.map((order) => {
     return {
-      _id: order._id,
+      id: order._id,
       isActive: order.isActive,
+      title: order.title,
+      creationDate: order.createdAt,
       author: {
         _id: order.author._id,
         username: order.author.username
@@ -39,6 +44,7 @@ module.exports = {
   before: {
     all: [],
     find: [
+      sortByCreationDate,
       projectAuthors
     ],
     get: [],
