@@ -40,6 +40,15 @@ function filterData(context) {
   return context;
 }
 
+function filterRemovedData(context) {
+  skipFeathersInternalCall(context);
+  const order = context.result;
+  context.result = {
+    id: order._id
+  };
+  return context;
+}
+
 module.exports = {
   before: {
     all: [],
@@ -64,7 +73,7 @@ module.exports = {
     create: [],
     update: [],
     patch: [],
-    remove: []
+    remove: [ filterRemovedData ]
   },
 
   error: {
