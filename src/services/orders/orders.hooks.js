@@ -5,6 +5,9 @@
  * @param {Object} context A before hook context.
  * @returns {Object} A before hook context.
  */
+
+const { authenticate } = require('@feathersjs/authentication').hooks;
+
 const skipFeathersInternalCall = (context) => {
   if(!context.params.provider) {
     return context;
@@ -32,7 +35,8 @@ function filterData(context) {
       author: {
         id: order.author._id,
         username: order.author.username
-      }
+      },
+      participants: order.participants || []
     };
   });
   context.params.query = {};
@@ -51,7 +55,7 @@ function filterRemovedData(context) {
 
 module.exports = {
   before: {
-    all: [],
+    all: [ authenticate('jwt') ],
     find: [
       sortByCreationDate,
       projectAuthors
