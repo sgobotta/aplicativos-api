@@ -1,9 +1,10 @@
 // Application hooks that run for every service
 const logger = require('./hooks/logger');
+const { tokenToHeader } = require('./services/utils/authentication');
 
 module.exports = {
   before: {
-    all: [ logger() ],
+    all: [ tokenToHeader, logger() ],
     find: [],
     get: [],
     create: [],
