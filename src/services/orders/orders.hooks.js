@@ -53,6 +53,24 @@ function filterRemovedData(context) {
   return context;
 }
 
+function filterPatchedData(context) {
+  const order = context.result;
+  const newOrder = {
+    id: order._id,
+    isActive: order.isActive,
+    author: {
+      id: order.author._id,
+      username: order.author.username,
+      email: order.author.email,
+    },
+    title: order.title,
+    participants: order.participants,
+    creationDate: order.createdAt,
+  };
+  context.result = newOrder;
+  return context;
+}
+
 function queryByService(context) {
   const { data } = context;
   const services = {
@@ -111,8 +129,18 @@ function populateOrderParticipants(context) {
   const { result } = context;
   return populateOrder(result, context)
     .then((order) => {
-      order.id = order._id;
-      context.data = order;
+      const newOrder = {
+        id: order._id,
+        title: order.title,
+        author: {
+          id: order.author._id,
+          username: order.author.username,
+        },
+        isActive: order.isActive,
+        participants: order.populatedParticipants,
+        creationDate: order.createdAt,
+      };
+      context.data = newOrder;
       return context;
     });
 }
@@ -136,7 +164,7 @@ module.exports = {
     get: [],
     create: [],
     update: [],
-    patch: [ queryByService ],
+    patch: [ queryByService, projectAuthors ],
     remove: []
   },
 
@@ -150,7 +178,7 @@ module.exports = {
     get: [],
     create: [],
     update: [],
-    patch: [ populateOrderParticipants ],
+    patch: [ populateOrderParticipants, filterPatchedData ],
     remove: [ filterRemovedData ]
   },
 
