@@ -74,7 +74,8 @@ function filterPatchedData(context) {
 function queryByService(context) {
   const { data } = context;
   const services = {
-    addParticipant: () => addParticipant(context)
+    addParticipant: () => addParticipant(context),
+    removeParticipant: () => removeParticipant(context)
   };
   return services[data.service]();
 }
@@ -93,6 +94,21 @@ function addParticipant(context) {
       const newParticipants = order.participants
         .filter((p) => !Types.ObjectId(p.participantId).equals(Types.ObjectId(participant.participantId)));
       newParticipants.push(participant);
+      context.data = { $set: { 'participants': newParticipants }};
+      return context;
+    });
+}
+
+function removeParticipant(context) {
+  const { Types } = context.app.settings.mongooseClient;
+
+  const participantId = context.data.participantId;
+
+  return context.app.service('orders')
+    .get(context.id)
+    .then((order) => {
+      const newParticipants = order.participants
+        .filter((p) => !Types.ObjectId(p.participantId).equals(Types.ObjectId(participantId)));
       context.data = { $set: { 'participants': newParticipants }};
       return context;
     });
