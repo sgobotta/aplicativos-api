@@ -7,7 +7,7 @@ module.exports = function (app) {
   const { Schema } = mongooseClient;
 
   const OrderParticipant = new mongooseClient.Schema({
-    participantId: { type: Schema.Types.ObjectId, ref: 'participantId', required: true},
+    participantId: { type: Schema.Types.ObjectId, ref: 'users', required: true},
     selection: { type: [String]}
   });
 
