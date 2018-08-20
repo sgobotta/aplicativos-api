@@ -120,7 +120,6 @@ function populateOrdersParticipants(context) {
   const { result } = context;
   const orders = populateOrders(result, context);
   return Promise.all(orders).then((populatedOrders) => {
-    console.log('populatedOrders', populatedOrders)
     context.result = populatedOrders;
     return context;
   });
