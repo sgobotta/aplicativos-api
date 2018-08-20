@@ -111,6 +111,7 @@ function populateOrderParticipants(context) {
   const { result } = context;
   return populateOrder(result, context)
     .then((order) => {
+      order.id = order._id;
       context.data = order;
       return context;
     });
