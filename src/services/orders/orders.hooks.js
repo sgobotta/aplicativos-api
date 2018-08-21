@@ -53,6 +53,107 @@ function filterRemovedData(context) {
   return context;
 }
 
+function filterPatchedData(context) {
+  const order = context.result;
+  const newOrder = {
+    id: order._id,
+    isActive: order.isActive,
+    author: {
+      id: order.author._id,
+      username: order.author.username,
+      email: order.author.email,
+    },
+    title: order.title,
+    participants: order.participants,
+    creationDate: order.createdAt,
+  };
+  context.result = newOrder;
+  return context;
+}
+
+function queryByService(context) {
+  const { data } = context;
+  const services = {
+    addParticipant: () => addParticipant(context)
+  };
+  return services[data.service]();
+}
+
+function addParticipant(context) {
+  const participant = {
+    participantId: context.params.user._id,
+    selection: context.data.checkedOptions
+  };
+  context.data = { $push: { participants: participant }};
+  return context;
+}
+
+function populateOrder(order, context) {
+  const { Types } = context.app.settings.mongooseClient;
+
+  const participantIds = order.participants.map((participant) => {
+    return Types.ObjectId(participant.participantId);
+  });
+  return context.app.service('users')
+    .find({ _id: { $in: participantIds }})
+    .then((users) => {
+      let populatedParticipants = [];
+      order.participants.map((participant) => {
+        users.data.forEach((user) => {
+          if (Types.ObjectId(participant.participantId).equals(Types.ObjectId(user._id))) {
+            populatedParticipants.push({
+              participantId: participant.participantId,
+              username: user.username,
+              selection: participant.selection
+            });
+          }
+        });
+      });
+      order.participants = populatedParticipants;
+      return order;
+    });
+}
+
+function populateOrders(orders, context) {
+  return orders.map((order) => {
+    return new Promise((resolve)  => {
+      populateOrder(order, context)
+        .then((res) => {
+          resolve(res);
+        });
+    });
+  });
+}
+
+function populateOrderParticipants(context) {
+  const { result } = context;
+  return populateOrder(result, context)
+    .then((order) => {
+      const newOrder = {
+        id: order._id,
+        title: order.title,
+        author: {
+          id: order.author._id,
+          username: order.author.username,
+        },
+        isActive: order.isActive,
+        participants: order.populatedParticipants,
+        creationDate: order.createdAt,
+      };
+      context.data = newOrder;
+      return context;
+    });
+}
+
+function populateOrdersParticipants(context) {
+  const { result } = context;
+  const orders = populateOrders(result, context);
+  return Promise.all(orders).then((populatedOrders) => {
+    context.result = populatedOrders;
+    return context;
+  });
+}
+
 module.exports = {
   before: {
     all: [ authenticate('jwt') ],
@@ -63,7 +164,7 @@ module.exports = {
     get: [],
     create: [],
     update: [],
-    patch: [],
+    patch: [ queryByService, projectAuthors ],
     remove: []
   },
 
@@ -71,12 +172,13 @@ module.exports = {
     all: [
     ],
     find: [
-      filterData
+      filterData,
+      populateOrdersParticipants
     ],
     get: [],
     create: [],
     update: [],
-    patch: [],
+    patch: [ populateOrderParticipants, filterPatchedData ],
     remove: [ filterRemovedData ]
   },
 

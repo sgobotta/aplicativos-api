@@ -51,7 +51,7 @@ function dispatchByService(context) {
     get:    () => dispatchByQuery(context),
     create: () => dispatchByData(context),
     update: () => dispatchByQuery(context),
-    patch:  () => dispatchByQuery(context),
+    patch:  () => dispatchByData(context),
     remove: () => dispatchById(context)
   };
   return services[context.method]();
