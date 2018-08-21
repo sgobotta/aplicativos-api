@@ -32,6 +32,7 @@ function filterData(context) {
       isActive: order.isActive,
       title: order.title,
       creationDate: order.createdAt,
+      updatedDate: order.updatedAt,
       author: {
         id: order.author._id,
         username: order.author.username
@@ -66,6 +67,7 @@ function filterPatchedData(context) {
     title: order.title,
     participants: order.participants,
     creationDate: order.createdAt,
+    updatedDate: order.updatedAt
   };
   context.result = newOrder;
   return context;
@@ -74,7 +76,10 @@ function filterPatchedData(context) {
 function queryByService(context) {
   const { data } = context;
   const services = {
-    addParticipant: () => addParticipant(context)
+    addParticipant: () => addParticipant(context),
+    removeParticipant: () => removeParticipant(context),
+    finishOrder: () => finishOrder(context),
+    restartOrder: () => restartOrder(context)
   };
   return services[data.service]();
 }
@@ -96,6 +101,31 @@ function addParticipant(context) {
       context.data = { $set: { 'participants': newParticipants }};
       return context;
     });
+}
+
+function removeParticipant(context) {
+  const { Types } = context.app.settings.mongooseClient;
+
+  const participantId = context.data.participantId;
+
+  return context.app.service('orders')
+    .get(context.id)
+    .then((order) => {
+      const newParticipants = order.participants
+        .filter((p) => !Types.ObjectId(p.participantId).equals(Types.ObjectId(participantId)));
+      context.data = { $set: { 'participants': newParticipants }};
+      return context;
+    });
+}
+
+function finishOrder(context) {
+  context.data = { $set: { isActive: false }};
+  return context;
+}
+
+function restartOrder(context) {
+  context.data = { $set: { isActive: true }};
+  return context;
 }
 
 function populateOrder(order, context) {
@@ -150,6 +180,7 @@ function populateOrderParticipants(context) {
         isActive: order.isActive,
         participants: order.populatedParticipants,
         creationDate: order.createdAt,
+        updatedDate: order.updatedAt
       };
       context.data = newOrder;
       return context;
