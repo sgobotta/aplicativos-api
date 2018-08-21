@@ -32,6 +32,7 @@ function filterData(context) {
       isActive: order.isActive,
       title: order.title,
       creationDate: order.createdAt,
+      updatedDate: order.updatedAt,
       author: {
         id: order.author._id,
         username: order.author.username
@@ -66,6 +67,7 @@ function filterPatchedData(context) {
     title: order.title,
     participants: order.participants,
     creationDate: order.createdAt,
+    updatedDate: order.updatedAt
   };
   context.result = newOrder;
   return context;
@@ -75,7 +77,9 @@ function queryByService(context) {
   const { data } = context;
   const services = {
     addParticipant: () => addParticipant(context),
-    removeParticipant: () => removeParticipant(context)
+    removeParticipant: () => removeParticipant(context),
+    finishOrder: () => finishOrder(context),
+    restartOrder: () => restartOrder(context)
   };
   return services[data.service]();
 }
@@ -112,6 +116,16 @@ function removeParticipant(context) {
       context.data = { $set: { 'participants': newParticipants }};
       return context;
     });
+}
+
+function finishOrder(context) {
+  context.data = { $set: { isActive: false }};
+  return context;
+}
+
+function restartOrder(context) {
+  context.data = { $set: { isActive: true }};
+  return context;
 }
 
 function populateOrder(order, context) {
@@ -166,6 +180,7 @@ function populateOrderParticipants(context) {
         isActive: order.isActive,
         participants: order.populatedParticipants,
         creationDate: order.createdAt,
+        updatedDate: order.updatedAt
       };
       context.data = newOrder;
       return context;
