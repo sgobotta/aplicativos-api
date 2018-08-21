@@ -80,12 +80,22 @@ function queryByService(context) {
 }
 
 function addParticipant(context) {
+  const { Types } = context.app.settings.mongooseClient;
+
   const participant = {
     participantId: context.params.user._id,
     selection: context.data.checkedOptions
   };
-  context.data = { $push: { participants: participant }};
-  return context;
+
+  return context.app.service('orders')
+    .get(context.id)
+    .then((order) => {
+      const newParticipants = order.participants
+        .filter((p) => !Types.ObjectId(p.participantId).equals(Types.ObjectId(participant.participantId)));
+      newParticipants.push(participant);
+      context.data = { $set: { 'participants': newParticipants }};
+      return context;
+    });
 }
 
 function populateOrder(order, context) {
@@ -102,6 +112,7 @@ function populateOrder(order, context) {
         users.data.forEach((user) => {
           if (Types.ObjectId(participant.participantId).equals(Types.ObjectId(user._id))) {
             populatedParticipants.push({
+              id: participant._id,
               participantId: participant.participantId,
               username: user.username,
               selection: participant.selection
