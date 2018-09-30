@@ -1,5 +1,11 @@
 const { authenticate } = require('@feathersjs/authentication').hooks;
-const { populateResponse, updateOrCreateUser, updateIfExists } = require('./../utils/fb.user.hook.utils');
+const {
+  createQuery,
+  populateResponse,
+  updateUserFacebookId,
+  updateOrCreateUser,
+  updateIfExists,
+} = require('./../utils/fb.user.hook.utils');
 
 
 module.exports = {
@@ -10,7 +16,7 @@ module.exports = {
     create: [ updateOrCreateUser, updateIfExists ],
     update: [],
     patch: [],
-    remove: []
+    remove: [ createQuery ]
   },
 
   after: {
@@ -20,7 +26,7 @@ module.exports = {
     create: [ populateResponse ],
     update: [],
     patch: [],
-    remove: []
+    remove: [ updateUserFacebookId ]
   },
 
   error: {
