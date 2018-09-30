@@ -1,7 +1,7 @@
 
 const utils = {}
 
-/** Before Hooks */
+/** Helpers */
 
 function protectUser(user) {
   return {
@@ -11,6 +11,21 @@ function protectUser(user) {
     facebookId: user.facebookId,
   };
 }
+
+/** Before Hooks */
+
+/** Remove */
+
+utils.createQuery = async (context) => {
+  const mongooseClient = context.app.get('mongooseClient');
+  const FbUserApi = mongooseClient.models.FbUser;
+  const fbUser = await FbUserApi.findOne({ userRef: context.id });
+  const fbUserId = fbUser._id;
+  context.id = fbUserId
+  return context;
+}
+
+/** Create */
 
 utils.updateOrCreateUser = async (context) => {
   const mongooseClient = context.app.get('mongooseClient');
@@ -71,6 +86,22 @@ utils.updateIfExists = async (context) => {
 }
 
 /** After Hooks */
+
+/** Remove */
+
+utils.updateUserFacebookId = async (context) => {
+  const mongooseClient = context.app.get('mongooseClient');
+  const UsersApi = mongooseClient.models.users;
+  const userId = context.result.userRef;
+  const user = await UsersApi.findOne(userId);
+  if (!user.password) {
+    const deletedUser = await UsersApi.remove({ _id: userId });
+  }
+  const updatedUser = await UsersApi.update({ _id: userId }, { $unset: { facebookId: 1 }});
+  return context;
+}
+
+/** Create */
 
 utils.populateResponse = async (context) => {
   const mongooseClient = context.app.get('mongooseClient');
