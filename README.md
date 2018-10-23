@@ -23,6 +23,23 @@ Getting up and running is as easy as 1, 2, 3.
     npm start
     ```
 
+## Services
+
+URI | METHOD | URL PARAMS | DATA PARAMS | REQUIRE AUTH
+--- | --- | --- | --- | ---
+**/users** | FIND | (optionally) id, password, username, facebookId  | |  Yes
+**/users** | DELETE | id | |  Yes
+**/users** | UPDATE | id | ```{"email": String, "password": String, "username": String, "facebookId": String, "accessToken": String}``` |  Yes
+**/users** | CREATE | | ```{"email": String, "password": String, "username": String, "facebookId": String, "accessToken": String}``` |  Yes
+**/votes** | FIND | (optionally) name, province, percentage, voteType  | |  No
+**/votes** | DELETE | id | |  No
+**/votes** | UPDATE | id | ```{"name": String, "province": String, "percentage": String, "voteType": String"}``` |  No
+**/votes** | CREATE | | ```{"name": String (required), "province": String (required), "percentage": String (required), "voteType": String (required)"}``` |  No
+**/orders** | FIND | (optionally) name, province, percentage, voteType  | |  Yes
+**/orders** | DELETE | id | |  Yes
+**/orders** | UPDATE | id | ```{"title": String (required), "author": ObjectId (refer Users, required), "participants": String (required), "isActive": Boolean (required), "expiresAt": Date (required)}``` |  Yes
+**/orders** | CREATE | | ```{"title": String (required), "author": ObjectId (refer Users, required), "participants": [OrderParticipants], "isActive": Boolean (required), "expiresAt": Date (required)}``` |  Yes
+
 ## Testing
 
 Simply run `npm test` and all your tests in the `test/` directory will be run.
